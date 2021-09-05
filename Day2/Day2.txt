@@ -1,0 +1,273 @@
+Server [localhost]:
+Database [postgres]:
+Port [5432]:
+Username [postgres]:
+Password for user postgres:
+psql (13.4)
+WARNING: Console code page (437) differs from Windows code page (1252)
+         8-bit characters might not work correctly. See psql reference
+         page "Notes for Windows users" for details.
+Type "help" for help.
+
+postgres=# CREATE USER discord WITH PASSWORD 'password';
+CREATE ROLE
+postgres=# DROP DATABASE devs
+postgres-# ;
+DROP DATABASE
+postgres=# CREATE DATABASE devs;
+CREATE DATABASE
+postgres=# GRANT ALL PRIVILEGES ON DATABASE devs to discord;
+GRANT
+postgres=# \l
+                                         List of databases
+   Name    |  Owner   | Encoding |      Collate       |       Ctype        |   Access privileges
+-----------+----------+----------+--------------------+--------------------+-----------------------
+ devs      | postgres | UTF8     | English_India.1252 | English_India.1252 | =Tc/postgres         +
+           |          |          |                    |                    | postgres=CTc/postgres+
+           |          |          |                    |                    | discord=CTc/postgres
+ devsnest  | postgres | UTF8     | English_India.1252 | English_India.1252 | =Tc/postgres         +
+           |          |          |                    |                    | postgres=CTc/postgres+
+           |          |          |                    |                    | devs=CTc/postgres
+ postgres  | postgres | UTF8     | English_India.1252 | English_India.1252 |
+ template0 | postgres | UTF8     | English_India.1252 | English_India.1252 | =c/postgres          +
+           |          |          |                    |                    | postgres=CTc/postgres
+ template1 | postgres | UTF8     | English_India.1252 | English_India.1252 | =c/postgres          +
+           |          |          |                    |                    | postgres=CTc/postgres
+(5 rows)
+
+
+postgres=# \c devs;
+You are now connected to database "devs" as user "postgres".
+devs=# CREATE TABLE COMPANY(
+devs(# ID INT PRIMARY KEY NOT NULL,
+devs(# NAME TEXT NOT NULL,
+devs(# AGE INT NOT NULL,
+devs(# ADDRESS CHAR(50),
+devs(# SALARY REAL,
+devs(# JOIN_DATE DATE);
+CREATE TABLE
+devs=# CREATE DATABASE DEPARTMENT(
+devs(# ID INT PRIMARY KEY NOT NULL,
+devs(# DEPT CHAR(50) NOT NULL,
+devs(# EMP_ID INT NOT NULL);
+ERROR:  syntax error at or near "("
+LINE 1: CREATE DATABASE DEPARTMENT(
+                                  ^
+devs=# \d
+          List of relations
+ Schema |  Name   | Type  |  Owner
+--------+---------+-------+----------
+ public | company | table | postgres
+(1 row)
+
+
+devs=# \d company
+                   Table "public.company"
+  Column   |     Type      | Collation | Nullable | Default
+-----------+---------------+-----------+----------+---------
+ id        | integer       |           | not null |
+ name      | text          |           | not null |
+ age       | integer       |           | not null |
+ address   | character(50) |           |          |
+ salary    | real          |           |          |
+ join_date | date          |           |          |
+Indexes:
+    "company_pkey" PRIMARY KEY, btree (id)
+
+
+devs=# CREATE SCHEMA mySchema;
+CREATE SCHEMA
+devs=# CREATE TABLE mySchema.company(
+devs(# ID INT PRIMARY KEY NOT NULL,
+devs(# NAME TEXT NOT NULL,
+devs(# AGE INT NOT NULL,
+devs(# ADDRESS CHAR(25),
+devs(# SALARY DECIMAL(18,2)
+devs(# );
+CREATE TABLE
+devs=# \d
+          List of relations
+ Schema |  Name   | Type  |  Owner
+--------+---------+-------+----------
+ public | company | table | postgres
+(1 row)
+
+
+devs=# DROP SCHEMA mySchema CASCADE;
+NOTICE:  drop cascades to table myschema.company
+DROP SCHEMA
+devs=# INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY,JOIN_DATE) VALUES (1, 'Paul', 32, 'California', 20000.00, '2001-07-21');
+INSERT 0 1
+devs=# INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY,JOIN_DATE) VALUES (2, 'Allen', 25, 'Texas', '2001-07-22');
+ERROR:  INSERT has more target columns than expressions
+LINE 1: INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY,JOIN_DATE) V...
+                                                        ^
+devs=# INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,JOIN_DATE) VALUES (2, 'Allen', 25, 'Texas', '2001-07-22');
+INSERT 0 1
+devs=# INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY,JOIN_DATE) VALUES (3, 'Teddy', 23, 'Norway', 20000.00, DEFAULT);
+INSERT 0 1
+devs=# INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY,JOIN_DATE) VALUES (4, 'Mark', 32, 'Rich-Mond', 65000.00, '2001-07-23');
+INSERT 0 1
+devs=# SELECT * FROM COMPANY
+devs-# ;
+ id | name  | age |                      address                       | salary | join_date
+----+-------+-----+----------------------------------------------------+--------+------------
+  1 | Paul  |  32 | California                                         |  20000 | 2001-07-21
+  2 | Allen |  25 | Texas                                              |        | 2001-07-22
+  3 | Teddy |  23 | Norway                                             |  20000 |
+  4 | Mark  |  32 | Rich-Mond                                          |  65000 | 2001-07-23
+(4 rows)
+
+
+devs=# SELECT COUNT(*) AS "RECORDS" FROM COMPANY;
+ RECORDS
+---------
+       4
+(1 row)
+
+
+devs=# SELECT * FROM COMPANY WHERE AGE>=25 AND SALARY>=65000;
+ id | name | age |                      address                       | salary | join_date
+----+------+-----+----------------------------------------------------+--------+------------
+  4 | Mark |  32 | Rich-Mond                                          |  65000 | 2001-07-23
+(1 row)
+
+
+devs=# SELECT * FROM COMPANY WHERE AGE>=25 OR SALARY>=65000
+devs-# ;
+ id | name  | age |                      address                       | salary | join_date
+----+-------+-----+----------------------------------------------------+--------+------------
+  1 | Paul  |  32 | California                                         |  20000 | 2001-07-21
+  2 | Allen |  25 | Texas                                              |        | 2001-07-22
+  4 | Mark  |  32 | Rich-Mond                                          |  65000 | 2001-07-23
+(3 rows)
+
+
+devs=# SELECT * FROM COMPANY WHERE AGE IS NOT NULL;
+ id | name  | age |                      address                       | salary | join_date
+----+-------+-----+----------------------------------------------------+--------+------------
+  1 | Paul  |  32 | California                                         |  20000 | 2001-07-21
+  2 | Allen |  25 | Texas                                              |        | 2001-07-22
+  3 | Teddy |  23 | Norway                                             |  20000 |
+  4 | Mark  |  32 | Rich-Mond                                          |  65000 | 2001-07-23
+(4 rows)
+
+
+devs=# SELECT * FROM COMPANY WHERE NAME LIKE 'P%';
+ id | name | age |                      address                       | salary | join_date
+----+------+-----+----------------------------------------------------+--------+------------
+  1 | Paul |  32 | California                                         |  20000 | 2001-07-21
+(1 row)
+
+                                               ^
+devs=# SELECT * FROM COMPANY WHERE NAME LIKE 'P_ul';
+ id | name | age |                      address                       | salary | join_date
+----+------+-----+----------------------------------------------------+--------+------------
+  1 | Paul |  32 | California                                         |  20000 | 2001-07-21
+(1 row)
+
+
+devs=# SELECT * FROM COMPANY WHERE SALARY::TEXT LIKE '200%';
+ id | name  | age |                      address                       | salary | join_date
+----+-------+-----+----------------------------------------------------+--------+------------
+  1 | Paul  |  32 | California                                         |  20000 | 2001-07-21
+  3 | Teddy |  23 | Norway                                             |  20000 |
+(2 rows)
+
+
+devs=# SELECT * FROM COMPANY WHERE AGE BETWEEN 25 AND 27;
+ id | name  | age |                      address                       | salary | join_date
+----+-------+-----+----------------------------------------------------+--------+------------
+  2 | Allen |  25 | Texas                                              |        | 2001-07-22
+(1 row)
+
+
+devs=# SELECT * FROM COMPANY WHERE NAME LIKE 'A_l%';
+ id | name  | age |                      address                       | salary | join_date
+----+-------+-----+----------------------------------------------------+--------+------------
+  2 | Allen |  25 | Texas                                              |        | 2001-07-22
+(1 row)
+
+
+devs=# UPDATE COMPANY SET SALARY = 15000 WHERE ID=3;
+UPDATE 1
+devs=# SELECT * FROM COMPANY;
+ id | name  | age |                      address                       | salary | join_date
+----+-------+-----+----------------------------------------------------+--------+------------
+  1 | Paul  |  32 | California                                         |  20000 | 2001-07-21
+  2 | Allen |  25 | Texas                                              |        | 2001-07-22
+  4 | Mark  |  32 | Rich-Mond                                          |  65000 | 2001-07-23
+  3 | Teddy |  23 | Norway                                             |  15000 |
+(4 rows)
+
+
+devs=#  UPDATE COMPANY SET ADDRESS='Texas', SALARY=20000 WHERE ID=2;
+UPDATE 1
+devs=# \d
+          List of relations
+ Schema |  Name   | Type  |  Owner
+--------+---------+-------+----------
+ public | company | table | postgres
+(1 row)
+
+
+devs=# DELETE FROM COMPANY WHERE ID=2;
+DELETE 1
+devs=# \d
+          List of relations
+ Schema |  Name   | Type  |  Owner
+--------+---------+-------+----------
+ public | company | table | postgres
+(1 row)
+
+
+devs=#  SELECT * FROM COMPANY;
+ id | name  | age |                      address                       | salary | join_date
+----+-------+-----+----------------------------------------------------+--------+------------
+  1 | Paul  |  32 | California                                         |  20000 | 2001-07-21
+  4 | Mark  |  32 | Rich-Mond                                          |  65000 | 2001-07-23
+  3 | Teddy |  23 | Norway                                             |  15000 |
+(3 rows)
+
+
+devs=# CREATE TABLE CUSTOMERS(
+devs(# customer_id INT NOT NULL,
+devs(# customer_name VARCHAR(255) NOT NULL,
+devs(# PRIMARY KEY(customer_id)
+devs(# );
+CREATE TABLE
+devs=# CREATE TABLE contacts(
+devs(# contact_id INT NOT NULL,
+devs(# customer_id INT,
+devs(# contact_name VARCHAR(255) NOT NULL,
+devs(# phone VARCHAR(15),
+devs(# email VARCHAR(100),
+devs(# PRIMARY KEY(contact_id),
+devs(# CONSTRAINT fk_customer
+devs(# FOREIGN KEY(customer_id)
+devs(# REFERENCES customers(customer_id)
+devs(# ON DELETE CASCADE
+devs(# );
+CREATE TABLE
+devs=# SELECT CURRENT_TIMESTAMP;
+        current_timestamp
+----------------------------------
+ 2021-09-05 21:09:13.301288+05:30
+(1 row)
+
+
+devs=# SELECT (15+2) as addition;
+ addition
+----------
+       17
+(1 row)
+
+
+devs=#  SELECT (15*2) as addition;
+ addition
+----------
+       30
+(1 row)
+
+
+devs=#
